@@ -1,0 +1,125 @@
+Aula 04/02
+                                Escalonamento
+
+    Multiprogramação:
+Permite possuir vários processos na memoria principal ao mesmo tempo
+
+    Escalonador:
+Parte do SO que decide qual processo usará a CPU
+
+    Algoritmo de escalonamento:
+Usado para tomar a decisão
+
+    Sistemas de tempo compartilhado:
+O foco é a satisfação do usuário, ou seja, o processo de maior prioridade para o usuário ganha vantagem no escalonamento.
+
+        Tipos de processos:
+
+    CPU-bound:
+Alto nível de processamento, baixas operações de entrada e saída
+    I/O bound:
+Altas interrupções de entrada e saída, baixos intervalos de processo.
+
+        Tipos de SO:
+
+    Preemptivos:
+Dependendo do clock do relógio(?) o processo é interrompido ou não
+
+    Não preemptivos:
+O processo ocupa o precessador até que termine o processo ou execute uma ação de I/O
+
+
+                               Threads
+
+Fluxo de execução de um processo
+Single-threads e multi-threads ocupam o mesmo espaço de endereçamento de memória.
+
+    Modelo de processos:
+- Agrupamento de recursos
+- Execução
+O thread é responsável apenas pela execução. 
+
+A vantagem de utilizar threads ao invés de vários processos é:
+ - O compartilhamento de dados ocorre naturalmente, enquanto em processos diferentes haveria de haver uma lógica para que isso acontecesse.
+ - Múltiplos processos ocupam maior espaço na memória principal.
+
+        Classificação de Threads
+
+    M:1
+- Permite apenas a execução de um thread de cada processo por vez. É um problema ao utilizar processadores com vários núcleos.
+- Os threads são totalmente gerenciados no espaço do usuário.
+- Não requer suporte do kernel
+- O escalonamento (qual thread será enviado por vez) é realizado pelo aplicativo
+- Caso um thread seja bloqueado, congela a aplicação inteira.
+
+    1:1
+- Kernel-level threads: o kernel vê um processo para cada thread
+- Vantagem: Simples implementação, já que as threads podem ser escalonadas como processos
+- Desvantagem: Muitas trocas de contexto são necessárias entre o espaço de usuário e kernel, gerando overhead
+(o que é troca de contexto?)
+
+    M:N
+- São feitos lightweight processes na camada de usuário, que então são enviados como processos para o kernel.
+- Vantagem: diminui a troca de contexto.
+- Desvantagem: aumenta a complexidade do sistema
+
+
+                        Algoritmos de escalonamento
+
+Considerando uma linha do tempo que vai de t0 - t12 (u)
+
+    First come first served
+(Não-preemptivo)
+
+O processo A precisa de 6u e chegou no tempo t0
+O processo B precisa de 3u e chegou no tempo t1
+O processo C precisa de 4u e chegou no tempo t2
+
+O processo A chegou primeiro e será executado até o fim. (t0 - t6)
+O processo B chegou em segundo e será executado até o fim (t6 - t9)
+O processo C chegou por último e será executado até o fim (t9 - t13)
+
+    Job mais curto primeiro
+(Não-preemptivo, altamente responsivo)
+
+O processo A precisa de 6u e chegou no tempo t0
+O processo B precisa de 4u e chegou no tempo t1
+O processo C precisa de 3u e chegou no tempo t2
+
+O processo A chega primeiro, como não há outros processos, o A será executado até o fim. (t0 - t6)
+Depois disso, ambos os outros processos estão presentes. Nesse caso o processo C será executado, pois tem carga menor de tempo. (t6 - t9)
+Após isso, o processo B será executado. (t9 - t13)
+
+    Job de menor tempo restante
+(Preemptivo, ainda mais responsivo)
+
+É uma versão preemptiva do job mais curto primeiro. Utiliza da preemptividade para interromper processos muito longos, executa os processos menores e depois dá continuidade aos processos interrompidos.
+
+O processo A precisa de 6u e chegou no tempo t0
+O processo B precisa de 4u e chegou no tempo t1
+O processo C precisa de 2u e chegou no tempo t2
+
+O processo A inicia em t0, em t1 o processo B chega, por ser menor, é executado na frente. O processo A executou 1u e ainda restam 5. O processo B executa 1u em (t1-t2), quando o processo C chega, é executado em (t2 - t4), o processo B executa o restante (t4 - t7) e finalmente o processo A é finalizado (t7 - t12).
+
+    Round Robin
+(preemptivo)
+
+Os processos são inseridos em uma lista circular. A -> B -> C -> A...
+É definido um quantum de tempo Q (com base na capacidade computacional do computador).
+O processo A recebe o processador por 1Q, utiliza este intervalo e o processador é passado para o próximo processo.
+
+    Fila de Prioridades
+(Preemptivo)
+
+É definida uma fila de prioridades e a cada processo é atribuído um lugar. Um lugar pode ter vários processos. Por exemplo: 
+0 Processos A, B e C <- Maior prioridade
+1 Processos D e E
+2 Processo F
+3 Processo G e H
+4 Processo I         <- Menor prioridade
+
+Em cada slot da fila é realizado um Round Robin para definir a ordem de execução.
+
+    Loteria
+
+É gerado um ticket para cada processo (ou mais em caso de prioridade). Ocorre um sorteio pela prioridade do processador, que é concedido por um tempo X.
